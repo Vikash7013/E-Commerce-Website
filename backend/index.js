@@ -240,13 +240,35 @@ const fetchUser = async (req, res, next) => {
 
 //Creating endpoint for adding product in cartdata
 app.post("/addtocart", fetchUser, async (req, res) => {
+  console.log("Added", req.body.itemId);
   let userData = await User.findOne({ _id: req.user.id });
   userData.cartData[req.body.itemId] += 1;
   await User.findOneAndUpdate(
     { _id: req.user.id },
     { cartData: userData.cartData }
   );
-  res.send("Added");
+  res.json({ message: "Added", itemId: req.body.itemId });
+});
+
+// Creating endpoint to remove product from cartdata
+app.post("/removefromcart", fetchUser, async (req, res) => {
+  console.log("Removed", req.body.itemId);
+
+  let userData = await User.findOne({ _id: req.user.id });
+  if (userData.cartData[req.body.itemId] > 0)
+    userData.cartData[req.body.itemId] -= 1;
+  await User.findOneAndUpdate(
+    { _id: req.user.id },
+    { cartData: userData.cartData }
+  );
+  res.json({ message: "Removed", itemId: req.body.itemId });
+});
+
+//Creating endpoint to get cartdata
+app.post("/getcart", fetchUser, async (req, res) => {
+  console.log("GetCart");
+  let userData = await User.findOne({ _id: req.user.id });
+  res.json(userData.cartData);
 });
 
 // App listening
